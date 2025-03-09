@@ -1,12 +1,30 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('newcollab')
-		.setDescription('Start a new collab!'),
+		.setDescription('Start a new collab!')
+		.addStringOption(option =>
+			option.setName('name')
+				.setDescription('The name of the collab')
+				.setRequired(true)
+		)
+		.addNumberOption(option =>
+			option.setName('duration')
+				.setDescription('The duration of the collab in weeks (default 4)')
+		)
+		.addUserOption(option =>
+			option.setName('member')
+				.setDescription('Member to add to the collab')
+		),
 	async execute(interaction) {
-		// interaction.user is the object representing the User who ran the command
-		// interaction.member is the GuildMember object, which represents the user in the specific guild
-		await interaction.reply(`This placeholder command was run by ${interaction.user.username}, who joined on ${interaction.member.joinedAt}.`);
+		const name = interaction.options.getString('name');
+		const duration = interaction.options.getNumber('duration') || 4;
+		const member = interaction.options.getUser('member') || interaction.user;
+
+		var dueDate = new Date()
+		dueDate.setDate(dueDate.getDate() + duration * 7);
+
+		await interaction.reply({ content: `The collab ${name} has been created\nDuration: ${duration} week(s), due on ${dueDate}\nWith the following members: ${member}`, flags: MessageFlags.Ephemeral});
 	},
 };
