@@ -13,18 +13,31 @@ module.exports = {
 			option.setName('duration')
 				.setDescription('The duration of the collab in weeks (default 4)')
 		)
-		.addUserOption(option =>
-			option.setName('member')
+		.addStringOption(option =>
+			option.setName('members')
 				.setDescription('Member to add to the collab')
 		),
 	async execute(interaction) {
 		const name = interaction.options.getString('name');
 		const duration = interaction.options.getNumber('duration') || 4;
-		const member = interaction.options.getUser('member') || interaction.user;
+		var members = [];
 
+		//calculate due date time stamp
 		var dueDate = new Date()
 		dueDate.setDate(dueDate.getDate() + duration * 7);
+		const timeStamp = Math.floor(dueDate.getTime() / 1000)
 
-		await interaction.reply({ content: `The collab ${name} has been created\nDuration: ${duration} week(s), due on ${dueDate}\nWith the following members: ${member}`, flags: MessageFlags.Ephemeral});
+		const users = interaction.options.getString('members').split(' ');
+
+		//extract member id from mention
+		users.forEach(resolvable => {
+    		const memberId = resolvable.match(/\d+/)?.[0];
+			const member = interaction.guild.members.cache.get(memberId);
+			members.push(member);
+    		if(!member) return;
+		})
+
+
+		await interaction.reply({ content: `The collab ${name} has been created\nDuration: ${duration} week(s), due <t:${timeStamp}:R>\nWith the following members: ${members}`, flags: MessageFlags.Ephemeral});
 	},
 };
