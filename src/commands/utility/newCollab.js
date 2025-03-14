@@ -3,6 +3,9 @@ const {
   MessageFlags,
   ChannelType,
   ThreadAutoArchiveDuration,
+  ButtonBuilder,
+  ActionRowBuilder,
+  ButtonStyle,
 } = require("discord.js");
 
 module.exports = {
@@ -24,7 +27,7 @@ module.exports = {
       option.setName("members").setDescription("Member to add to the collab")
     ),
   async execute(interaction) {
-	await interaction.deferReply({ Flags: MessageFlags.Ephemeral });
+    await interaction.deferReply({ Flags: MessageFlags.Ephemeral });
 
     const name = interaction.options.getString("name");
     const duration = interaction.options.getNumber("duration") || 4;
@@ -44,7 +47,6 @@ module.exports = {
       if (!member) return;
     });
 
-    //add members to thread
     //create thread
     const thread = await interaction.channel.threads.create({
       name: name,
@@ -53,27 +55,39 @@ module.exports = {
       type: ChannelType.PrivateThread,
     });
 
-    //add members to thread
+    // //add members to thread
     await Promise.all(members.map((member) => thread.members.add(member)));
 
-	//pind members and due date
-    const webhooks = await interaction.channel.fetchWebhooks();
-    const webhook = webhooks.first();
+    //build buttons
+    const target = interaction.options.getUser("target");
+    const reason =
+      interaction.options.getString("reason") ?? "No reason provided";
 
-    if (!webhook) {
-      webhook = await interaction.channel.createWebhook({
-        name: "Collab Webhook",
-        avatar: "https://i.imgur.com/AfFp7pu.png", // Example avatar URL
-      });
-    }
+	const onHold = new ButtonBuilder()
+      .setCustomId("onhold")
+      .setLabel("On Hold")
+      .setStyle(ButtonStyle.Danger);
 
-    const pinMsg = await webhook.send({
-      content: members.join(" ") + `\nDue <t:${timeStamp}:R>`,
-      threadId: thread.id,
-    });
+    const inProgress = new ButtonBuilder()
+      .setCustomId("inprogress")
+      .setLabel("In Progress")
+      .setStyle(ButtonStyle.Secondary);
 
+    const done = new ButtonBuilder()
+      .setCustomId("done")
+      .setLabel("Done")
+      .setStyle(ButtonStyle.Success);
 
-    pinMsg.pin();
+    const row = new ActionRowBuilder().addComponents(onHold, inProgress, done);
+
+    //pind member status and due date
+	const pinMsg = await thread.send({
+		content:
+        members.join(` Status: Not Started\n`) + `\nDue <t:${timeStamp}:R>`,
+		components: [row],
+	})
+
+	pinMsg.pin();
 
     await interaction.editReply({
       content: `The collab ${name} has been created successfully\nDuration: ${duration} week(s), due <t:${timeStamp}:R>\nWith the following members: ${members}`,
