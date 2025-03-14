@@ -59,10 +59,6 @@ module.exports = {
     await Promise.all(members.map((member) => thread.members.add(member)));
 
     //build buttons
-    const target = interaction.options.getUser("target");
-    const reason =
-      interaction.options.getString("reason") ?? "No reason provided";
-
 	const onHold = new ButtonBuilder()
       .setCustomId("onhold")
       .setLabel("On Hold")
