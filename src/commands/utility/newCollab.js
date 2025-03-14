@@ -83,7 +83,7 @@ module.exports = {
     //pind member status and due date
 	const pinMsg = await thread.send({
 		content:
-        members.join(` Status: Not Started\n`) + `\nDue <t:${timeStamp}:R>`,
+        members.join(` Status: Not Started\n`) + ` Status: Not Started\nDue <t:${timeStamp}:R>`,
 		components: [row],
 	})
 
