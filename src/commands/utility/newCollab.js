@@ -27,7 +27,7 @@ module.exports = {
       option.setName("members").setDescription("Member to add to the collab")
     ),
   async execute(interaction) {
-    await interaction.deferReply({ Flags: MessageFlags.Ephemeral });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const name = interaction.options.getString("name");
     const duration = interaction.options.getNumber("duration") || 4;
@@ -69,18 +69,30 @@ module.exports = {
       .setLabel("In Progress")
       .setStyle(ButtonStyle.Secondary);
 
+    const mainsDone = new ButtonBuilder()
+      .setCustomId("mainsdone")
+      .setLabel("Mains Done")
+      .setStyle(ButtonStyle.Primary);
+
     const done = new ButtonBuilder()
       .setCustomId("done")
       .setLabel("Done")
       .setStyle(ButtonStyle.Success);
 
-    const row = new ActionRowBuilder().addComponents(onHold, inProgress, done);
+    const row = new ActionRowBuilder().addComponents(
+      onHold,
+      inProgress,
+      mainsDone,
+      done
+    );
 
     //pin member status and due date
     const pinMsg = await thread.send({
       content:
-        members.join(` Status: Not Started\n`) +
-        ` Status: Not Started\nDue <t:${timeStamp}:R>`,
+        `***Due <t:${timeStamp}:R>***\n` +
+        "**" +
+        members.join(`: Not Started\n`) +
+        `: Not Started**`,
       components: [row],
     });
 
