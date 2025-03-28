@@ -6,6 +6,8 @@ const {
   ButtonBuilder,
   ActionRowBuilder,
   ButtonStyle,
+  ComponentType,
+  Component,
 } = require("discord.js");
 
 module.exports = {

@@ -1,33 +1,32 @@
 const updateStatus = async (interaction) => {
   const content = interaction.message.content;
-  const user = interaction.user.id;
-  const member = interaction.guild.members.cache.get(user);
-  const regex = new RegExp(String.raw`${member}: (.*?)\n`, "g");
+  const member = `<@${interaction.user.id}>`;
+  const regex = new RegExp(`${member}: (.*?)(\\n|\\*\\*|$)`, "g");
 
+  let newStatus;
   switch (interaction.customId) {
     case "onhold":
-      await interaction.update({
-        content: content.replace(regex, `${member}: On Hold\n`),
-      });
+      newStatus = "On Hold";
       break;
     case "inprogress":
-      await interaction.update({
-        content: content.replace(regex, `${member}: In Progress\n`),
-      });
+      newStatus = "In Progress";
       break;
     case "mainsdone":
-      await interaction.update({
-        content: content.replace(regex, `${member}: Mains Done\n`),
-      });
+      newStatus = "Mains Done";
       break;
     case "done":
-      await interaction.update({
-        content: content.replace(regex, `${member}: Done\n`),
-      });
+      newStatus = "Done";
       break;
     default:
-      break;
+      return; // Exit if the customId is not recognized
   }
+
+  // Replace the user's status line in the message content
+  const updatedContent = content.replace(regex, `${member}: ${newStatus}$2`);
+
+  await interaction.update({
+    content: updatedContent,
+  });
 };
 
 module.exports = { updateStatus };
