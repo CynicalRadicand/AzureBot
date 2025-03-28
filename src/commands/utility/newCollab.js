@@ -59,7 +59,7 @@ module.exports = {
     await Promise.all(members.map((member) => thread.members.add(member)));
 
     //build buttons
-	const onHold = new ButtonBuilder()
+    const onHold = new ButtonBuilder()
       .setCustomId("onhold")
       .setLabel("On Hold")
       .setStyle(ButtonStyle.Danger);
@@ -76,14 +76,15 @@ module.exports = {
 
     const row = new ActionRowBuilder().addComponents(onHold, inProgress, done);
 
-    //pind member status and due date
-	const pinMsg = await thread.send({
-		content:
-        members.join(` Status: Not Started\n`) + ` Status: Not Started\nDue <t:${timeStamp}:R>`,
-		components: [row],
-	})
+    //pin member status and due date
+    const pinMsg = await thread.send({
+      content:
+        members.join(` Status: Not Started\n`) +
+        ` Status: Not Started\nDue <t:${timeStamp}:R>`,
+      components: [row],
+    });
 
-	pinMsg.pin();
+    pinMsg.pin();
 
     await interaction.editReply({
       content: `The collab ${name} has been created successfully\nDuration: ${duration} week(s), due <t:${timeStamp}:R>\nWith the following members: ${members}`,
